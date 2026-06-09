@@ -378,12 +378,9 @@ async function embedAndWrite(
     );
     return;
   }
-  log(`6. embed   → embedding ${chunks.length} chunks via ${EMBEDDING_MODEL} …`);
-  const vectors = await embedBatch(
-    chunks.map((c) => c.text),
-    (d, t) => {
-      if (d % 192 === 0 || d === t) log(`   embedded ${d}/${t}`);
-    },
+  log(`6. embed   → embedding ${chunks.length} chunks via ${EMBEDDING_MODEL} (paced for free tier) …`);
+  const vectors = await embedBatch(chunks.map((c) => c.text), (d, t) =>
+    log(`   embedded ${d}/${t}`),
   );
 
   const finalChunks: Chunk[] = chunks.map((c, i) => ({

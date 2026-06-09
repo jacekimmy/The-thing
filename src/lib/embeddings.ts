@@ -1,59 +1,70 @@
-// Local embeddings via transformers.js — runs a small open model on-device.
-// No API key, no quota, free, offline after the first model download.
-// Same interface as before (embedQuery / embedBatch / EMBEDDING_MODEL) so the
-// ingest script and /api/chat don't need to care where vectors come from.
-import {
-  pipeline,
-  env,
-  type FeatureExtractionPipeline,
-} from "@huggingface/transformers";
+// Hosted embeddings via Voyage. One small HTTPS call, no native binaries —
+// so the serverless function stays tiny and deploys anywhere. Used for both
+// ingestion (embed chunks) and query time (embed the question).
+export const EMBEDDING_MODEL = "voyage-3.5-lite";
 
-// On serverless (Vercel/Lambda) the bundle is read-only; the model can only be
-// written to /tmp. Locally, keep the default cache (already downloaded).
-if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-  env.cacheDir = "/tmp/transformers-cache";
-}
+const VOYAGE_URL = "https://api.voyageai.com/v1/embeddings";
+const BATCH_SIZE = 100; // inputs per request (well within Voyage's per-request cap)
 
-// all-MiniLM-L6-v2: 384-dim, ~23MB, symmetric (no query/passage prefixes),
-// solid general-purpose retrieval quality. Cosine similarity downstream.
-export const EMBEDDING_MODEL = "Xenova/all-MiniLM-L6-v2";
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
-function getExtractor(): Promise<FeatureExtractionPipeline> {
-  if (!extractorPromise) {
-    extractorPromise = pipeline("feature-extraction", EMBEDDING_MODEL);
+async function embedOnce(
+  texts: string[],
+  inputType: "document" | "query",
+): Promise<number[][]> {
+  const apiKey = process.env.VOYAGE_API_KEY;
+  if (!apiKey) throw new Error("VOYAGE_API_KEY is not set");
+
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(VOYAGE_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: EMBEDDING_MODEL,
+        input: texts,
+        input_type: inputType,
+      }),
+    });
+
+    if (res.status === 429 && attempt < 4) {
+      await sleep(21_000); // respect the 3 req/min free limit, then retry
+      continue;
+    }
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(
+        `Voyage embeddings failed (${res.status}): ${detail.slice(0, 200)}`,
+      );
+    }
+    const json = (await res.json()) as {
+      data: { embedding: number[]; index: number }[];
+    };
+    return [...json.data].sort((a, b) => a.index - b.index).map((d) => d.embedding);
   }
-  return extractorPromise;
 }
 
-async function embed(texts: string[]): Promise<number[][]> {
-  const extractor = await getExtractor();
-  // Mean-pool token embeddings and L2-normalize → cosine == dot product.
-  const output = await extractor(texts, { pooling: "mean", normalize: true });
-  return output.tolist() as number[][];
-}
-
-/** Embed a single string (the user's question at query time). */
+/** Embed a single question at query time. */
 export async function embedQuery(text: string): Promise<number[]> {
-  const [vec] = await embed([text]);
+  const [vec] = await embedOnce([text], "query");
   return vec;
 }
 
 /**
- * Embed many strings in batches (ingestion). The model runs locally, so the
- * batch size just bounds peak memory; progress is reported per batch.
+ * Embed many chunks at ingestion, batched. One-time cost; the result is cached
+ * in the knowledge file, so it never runs in production.
  */
 export async function embedBatch(
   texts: string[],
   onProgress?: (done: number, total: number) => void,
-  batchSize = 32,
 ): Promise<number[][]> {
   const out: number[][] = [];
-  for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const vecs = await embed(batch);
-    out.push(...vecs);
-    onProgress?.(Math.min(i + batch.length, texts.length), texts.length);
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const batch = texts.slice(i, i + BATCH_SIZE);
+    out.push(...(await embedOnce(batch, "document")));
+    onProgress?.(out.length, texts.length);
   }
   return out;
 }
