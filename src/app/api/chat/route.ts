@@ -7,9 +7,21 @@ import { getCreator, DEFAULT_SLUG } from "@/lib/creators";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Cost knobs. Lower context + bounded memory + tighter output ≈ ~0.5¢/message.
+const RETRIEVE_K = 5; // video excerpts sent as grounding context
+const MAX_HISTORY_MESSAGES = 5; // memory window (≈ current + 2 prior turns)
+const MAX_OUTPUT_TOKENS = 700; // answers are short; this is a safety ceiling
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+}
+
+/** Keep only the last N messages, starting on a user turn (API requirement). */
+function capHistory(messages: ChatMessage[], maxMessages: number): ChatMessage[] {
+  let trimmed = messages.slice(-maxMessages);
+  while (trimmed.length && trimmed[0].role !== "user") trimmed = trimmed.slice(1);
+  return trimmed.length ? trimmed : messages.slice(-1);
 }
 
 function lastUserQuestion(body: any): string | null {
@@ -52,16 +64,22 @@ export async function POST(req: Request) {
   }
   const knowledge = loadKnowledge(slug);
 
-  const history: ChatMessage[] = Array.isArray(body?.messages)
+  const allMessages: ChatMessage[] = Array.isArray(body?.messages)
     ? body.messages.filter(
         (m: ChatMessage) =>
           (m.role === "user" || m.role === "assistant") && m.content?.trim(),
       )
     : [{ role: "user", content: question }];
 
+  // Memory window: keep only the last few turns so cost doesn't grow with the
+  // conversation. The retrieved video context (rebuilt every turn) carries the
+  // grounding, so the model rarely needs older chat history. Must start on a
+  // user message for the Anthropic API.
+  const history = capHistory(allMessages, MAX_HISTORY_MESSAGES);
+
   // 1. embed question  2. retrieve  3. build prompt
   const queryEmbedding = await embedQuery(question);
-  const top = retrieve(queryEmbedding, knowledge, 7);
+  const top = retrieve(queryEmbedding, knowledge, RETRIEVE_K);
   const citations = toCitations(top, 3);
   const system = buildSystemPrompt(knowledge.creator, top);
 
@@ -73,7 +91,7 @@ export async function POST(req: Request) {
   if (!wantStream) {
     const res = await anthropic.messages.create({
       model: CHAT_MODEL,
-      max_tokens: 1024,
+      max_tokens: MAX_OUTPUT_TOKENS,
       system,
       messages: history.map((m) => ({ role: m.role, content: m.content })),
     });
@@ -98,7 +116,7 @@ export async function POST(req: Request) {
 
         const mStream = anthropic.messages.stream({
           model: CHAT_MODEL,
-          max_tokens: 1024,
+          max_tokens: MAX_OUTPUT_TOKENS,
           system,
           messages: history.map((m) => ({ role: m.role, content: m.content })),
         });

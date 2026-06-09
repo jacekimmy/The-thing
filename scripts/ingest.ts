@@ -220,7 +220,8 @@ function buildChunks(
   for (const v of videos) {
     const segs = transcripts[v.id];
     if (!segs || segs.length === 0) continue;
-    const raw = chunkSegments(segs);
+    // Smaller chunks → less context shipped per question → lower cost.
+    const raw = chunkSegments(segs, 550, 80);
     raw.forEach((rc, i) => {
       chunks.push({
         id: `${v.id}:${i}`,
