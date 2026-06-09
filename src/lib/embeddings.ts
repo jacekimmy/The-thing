@@ -2,7 +2,17 @@
 // No API key, no quota, free, offline after the first model download.
 // Same interface as before (embedQuery / embedBatch / EMBEDDING_MODEL) so the
 // ingest script and /api/chat don't need to care where vectors come from.
-import { pipeline, type FeatureExtractionPipeline } from "@huggingface/transformers";
+import {
+  pipeline,
+  env,
+  type FeatureExtractionPipeline,
+} from "@huggingface/transformers";
+
+// On serverless (Vercel/Lambda) the bundle is read-only; the model can only be
+// written to /tmp. Locally, keep the default cache (already downloaded).
+if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  env.cacheDir = "/tmp/transformers-cache";
+}
 
 // all-MiniLM-L6-v2: 384-dim, ~23MB, symmetric (no query/passage prefixes),
 // solid general-purpose retrieval quality. Cosine similarity downstream.
