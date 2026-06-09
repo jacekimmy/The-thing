@@ -1,0 +1,19 @@
+{
+  "parker": {
+    "slug": "parker",
+    "name": "Parker Walbeck",
+    "handle": "@fulltimefilmmaker",
+    "niche": "Video production and filmmaking for creators",
+    "tone": ["practical", "conversational", "detailed"],
+    "avatarUrl": "https://yt3.googleusercontent.com/qKvQ1ASkyx-lAWd-V-u2C30niPLIIoSdCtsfKexV5JPVrRdT2vCYZI9XE7wdewW4lp7asMqe=s400-c",
+    "videoCount": 16,
+    "subhead": "Trained on 16 videos from Parker Walbeck. Ask anything.",
+    "intro": "I'm Parker's AI twin, trained on his filmmaking videos. Ask me about gear, shooting, editing, or landing clients.",
+    "suggestedQuestions": [
+      "How do I shoot professional interviews on a tight budget?",
+      "What camera settings and lighting should I use?",
+      "How do I edit in Premiere to tell a better story?",
+      "What gear should a beginner actually buy?"
+    ]
+  }
+}
