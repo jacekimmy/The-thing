@@ -130,16 +130,21 @@ body::before {
   line-height: 1.1;
 }
 .ai-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 19px;
+  padding: 0 8px;
   font-size: 10px;
   font-weight: 700;
+  line-height: 1;
   letter-spacing: 0.14em;
+  text-indent: 0.14em; /* offset the trailing letter-spacing so glyphs sit centered */
   text-transform: uppercase;
   color: var(--surface);
   background: var(--accent);
-  padding: 3px 7px 2px;
   border-radius: 999px;
   box-shadow: 0 1px 0 rgba(206, 106, 80, 0.55) inset, var(--shadow-sm);
-  transform: translateY(-1px);
 }
 .subhead {
   font-size: 13.5px;
