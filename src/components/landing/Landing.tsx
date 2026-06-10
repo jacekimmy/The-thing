@@ -6,8 +6,8 @@ import "./landing.css";
 // Single source of truth for the brand. Rename here when the real name lands.
 export const BRAND = "CreatorTwin";
 
-// Paste your Formspree form id (e.g. "mzzqkdyb") to activate the contact form.
-const FORMSPREE_ID = "";
+// Formspree form id: submissions land in the owner's inbox.
+const FORMSPREE_ID = "mrevaebz";
 
 interface Exchange {
   q: string;
