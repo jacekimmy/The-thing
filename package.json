@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "ingest": "tsx scripts/ingest.ts",
-    "ask": "tsx scripts/ask.ts"
+    "ask": "tsx scripts/ask.ts",
+    "questions": "tsx scripts/suggested_from_comments.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
