@@ -132,10 +132,16 @@ async function listVideos(): Promise<VideosCache> {
       url: `https://www.youtube.com/watch?v=${e.id}`,
     }));
 
-  // Best-effort channel avatar from the largest available thumbnail.
+  // Channel avatar: prefer the square profile photo (the "avatar" thumbnail),
+  // not the wide banner. Normalize the googleusercontent size params to
+  // `=s400-c` — the raw params yt-dlp returns sometimes don't render in <img>.
   const thumbs: any[] = data.thumbnails ?? [];
-  const avatar = thumbs.length
-    ? thumbs.sort((a, b) => (b.width ?? 0) - (a.width ?? 0))[0]?.url
+  const avatarThumb =
+    thumbs.find((t) => String(t.id ?? "").includes("avatar")) ??
+    thumbs.find((t) => t.width && t.width === t.height) ??
+    thumbs.sort((a, b) => (b.width ?? 0) - (a.width ?? 0))[0];
+  const avatar = avatarThumb?.url
+    ? `${String(avatarThumb.url).split("=")[0]}=s400-c`
     : undefined;
 
   const result: VideosCache = {
