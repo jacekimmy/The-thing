@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
-import { Fraunces, Hanken_Grotesk } from "next/font/google";
+import {
+  Fraunces,
+  Hanken_Grotesk,
+  Plus_Jakarta_Sans,
+  Space_Mono,
+} from "next/font/google";
 import "./globals.css";
 
-// Display: a warm, high-contrast variable serif with character.
+// Creator demo pages: warm editorial serif + grotesk.
 const display = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -11,11 +16,24 @@ const display = Fraunces({
   display: "swap",
 });
 
-// Body/UI: clean, friendly, readable in chat.
 const body = Hanken_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-body",
+  display: "swap",
+});
+
+// Landing page: geometric sans for display, mono for wayfinding.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const mono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -30,7 +48,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${jakarta.variable} ${mono.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

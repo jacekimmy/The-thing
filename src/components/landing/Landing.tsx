@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import "./landing.css";
 
 // Single source of truth for the brand. Rename here when the real name lands.
 export const BRAND = "CreatorTwin";
@@ -111,11 +112,11 @@ function DemoWindow() {
           <span className="demo-name">
             Your Twin <span className="ai-pill">AI</span>
           </span>
-          <span className="demo-sub">Trained on 132 of your videos</span>
+          <span className="demo-sub">trained on 132 videos</span>
         </div>
         <span className="demo-live" title="Always on">
           <span className="pulse" />
-          always on
+          on
         </span>
       </div>
       <div className="demo-body">
@@ -136,13 +137,13 @@ function DemoWindow() {
           </div>
         )}
         {phase === "done" && ex.cite && (
-          <a className="source-chip pop demo-cite" href="#contact" onClick={(e) => e.preventDefault()} tabIndex={-1}>
+          <span className="source-chip pop demo-cite">
             <span className="source-play">
               <PlayGlyph />
             </span>
             <span className="source-title">{ex.cite.title}</span>
             <span className="source-time">{ex.cite.time}</span>
-          </a>
+          </span>
         )}
       </div>
     </div>
@@ -178,7 +179,7 @@ function ContactForm() {
           </svg>
         </span>
         <h3 className="sent-title">Got it.</h3>
-        <p className="sent-sub">{"We'll watch a few of your videos and be in touch within a day."}</p>
+        <p className="sent-sub">{"We'll be in touch within a day."}</p>
       </div>
     );
   }
@@ -199,10 +200,6 @@ function ContactForm() {
         <label htmlFor="cf-channel">Where your content lives</label>
         <input id="cf-channel" name="channel" type="text" placeholder="YouTube channel, course, podcast..." />
       </div>
-      <div className="field">
-        <label htmlFor="cf-msg">Anything else</label>
-        <textarea id="cf-msg" name="message" rows={3} placeholder="Optional. Tell us about your audience." />
-      </div>
       <button className="btn btn-primary btn-block" type="submit" disabled={state === "sending"}>
         {state === "sending" ? "Sending..." : "Request my demo"}
         {state !== "sending" && <ArrowIcon />}
@@ -218,20 +215,41 @@ export default function Landing() {
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Scroll-reveal: elements with .rv rise in as they enter the viewport.
+  // A plain rAF-throttled scroll check beats IntersectionObserver here: it
+  // behaves identically in every browser, webview, and embedded preview, and
+  // can never strand content invisible.
   useEffect(() => {
-    const els = rootRef.current?.querySelectorAll(".rv") ?? [];
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("in");
-            io.unobserve(entry.target);
-          }
-        }),
-      { threshold: 0.16 },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    const els = Array.from(rootRef.current?.querySelectorAll<HTMLElement>(".rv") ?? []);
+    let pending = els.filter((el) => !el.classList.contains("in"));
+    let ticking = false;
+
+    const check = () => {
+      ticking = false;
+      const vh = window.innerHeight || document.documentElement.clientHeight || 800;
+      pending = pending.filter((el) => {
+        if (el.getBoundingClientRect().top < vh * 0.92) {
+          el.classList.add("in");
+          return false;
+        }
+        return true;
+      });
+      if (pending.length === 0) detach();
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(check);
+      }
+    };
+    const detach = () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return detach;
   }, []);
 
   return (
@@ -260,19 +278,25 @@ export default function Landing() {
             <em>Your twin can.</em>
           </h1>
           <p className="l-sub stagger" style={{ animationDelay: "0.2s" }}>
-            {BRAND} turns your video library into an AI twin of you. It answers
-            your {"audience's"} questions in your voice, grounded in what you
-            actually said, with a link to the exact moment you said it.
+            {BRAND} turns your video library into an AI twin. It answers your
+            audience in your voice, grounded in what you actually said, with a
+            link to the moment you said it.
           </p>
           <div className="l-ctas stagger" style={{ animationDelay: "0.28s" }}>
             <a className="btn btn-primary" href="#contact">
               Get your twin
               <ArrowIcon />
             </a>
-            <a className="btn btn-ghost" href="#how">
+            <a className="btn btn-ghost hero-ghost" href="#how">
               How it works
             </a>
           </div>
+          <a className="scroll-hint" href="#how" aria-label="Scroll to see how it works">
+            <span>scroll</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </a>
         </div>
         <div className="l-hero-demo stagger" style={{ animationDelay: "0.34s" }}>
           <DemoWindow />
@@ -281,44 +305,49 @@ export default function Landing() {
 
       <section className="l-section" id="how">
         <div className="l-wrap">
-          <p className="l-eyebrow rv">How it works</p>
-          <h2 className="l-h2 rv">Three steps. Zero lift.</h2>
-          <p className="l-lead rv">
-            {"You've already done the hard part: years of teaching, on record. We turn it into something your audience can talk to."}
-          </p>
-          <div className="steps">
-            <div className="step rv">
-              <span className="step-num">1</span>
+          <div className="scene-head">
+            <p className="l-eyebrow rv">How it works</p>
+            <h2 className="l-h2 rv">Three steps. Zero lift.</h2>
+          </div>
+          <ol className="steps">
+            <li className="step rv">
+              <span className="step-num">01</span>
               <h3>Share your channel</h3>
               <p>
                 Send us a link. We study every video you have published: the
-                lessons, the stories, the advice, the opinions.
+                lessons, the stories, the advice.
               </p>
-            </div>
-            <div className="step rv rv-d1">
-              <span className="step-num">2</span>
+            </li>
+            <li className="step rv rv-d1">
+              <span className="step-num">02</span>
               <h3>We tune the voice</h3>
               <p>
                 Your twin learns how you explain things, what you recommend,
                 and where your lines are. First person. Your tone.
               </p>
-            </div>
-            <div className="step rv rv-d2">
-              <span className="step-num">3</span>
+            </li>
+            <li className="step rv rv-d2">
+              <span className="step-num">03</span>
               <h3>Your audience asks</h3>
               <p>
                 One link for your community. Real answers at 2am, in your
                 voice, while you sleep.
               </p>
-            </div>
-          </div>
+            </li>
+          </ol>
         </div>
       </section>
 
       <section className="l-section" id="different">
         <div className="l-wrap">
-          <p className="l-eyebrow rv">Why it lands</p>
-          <h2 className="l-h2 rv">Grounded. Cited. Unmistakably you.</h2>
+          <div className="scene-head">
+            <p className="l-eyebrow rv">Why it lands</p>
+            <h2 className="l-h2 rv">
+              Grounded. Cited.
+              <br />
+              <em>Unmistakably you.</em>
+            </h2>
+          </div>
           <div className="diff-grid">
             <div className="diff rv">
               <span className="diff-icon" aria-hidden="true">
@@ -329,9 +358,8 @@ export default function Landing() {
               <div>
                 <h3>It only says what you said</h3>
                 <p>
-                  No invented opinions, no guessed advice. If you have not
-                  covered something, your twin says so and points to what you
-                  do cover.
+                  No invented opinions. If you have not covered something, your
+                  twin says so and points to what you do cover.
                 </p>
               </div>
             </div>
@@ -346,7 +374,7 @@ export default function Landing() {
                 <h3>Receipts on every answer</h3>
                 <p>
                   Each reply cites the exact video and timestamp. One tap plays
-                  the moment you said it. Trust is built in, not asked for.
+                  the moment you said it.
                 </p>
               </div>
             </div>
@@ -361,7 +389,7 @@ export default function Landing() {
                 <h3>Your voice, not chatbot voice</h3>
                 <p>
                   It tells your stories, quotes your rates, recommends your
-                  gear. Your students feel the difference in one answer.
+                  gear. Students feel it in one answer.
                 </p>
               </div>
             </div>
@@ -374,8 +402,8 @@ export default function Landing() {
               <div>
                 <h3>Live in days, not months</h3>
                 <p>
-                  You send a link. We handle the training, the tuning, and the
-                  hosting. You get a URL that feels like it was always yours.
+                  You send a link. We handle the rest. You get a URL that feels
+                  like it was always yours.
                 </p>
               </div>
             </div>
@@ -389,7 +417,7 @@ export default function Landing() {
             Right now, someone in your audience has a question
             <em> only you can answer.</em>
           </p>
-          <div className="rv rv-d1" style={{ display: "flex", justifyContent: "center" }}>
+          <div className="rv rv-d1 closing-cta">
             <a className="btn btn-primary" href="#contact">
               Be there, every time
               <ArrowIcon />
@@ -400,11 +428,10 @@ export default function Landing() {
 
       <section className="l-section l-contact" id="contact">
         <div className="l-wrap">
-          <p className="l-eyebrow rv">Say hello</p>
-          <h2 className="l-h2 rv">See yourself, on demand.</h2>
-          <p className="l-lead rv">
-            {"Tell us where your content lives. We'll build a private demo of your own twin and send you the link, on us."}
-          </p>
+          <div className="scene-head">
+            <p className="l-eyebrow rv">Say hello</p>
+            <h2 className="l-h2 rv">See yourself, on demand.</h2>
+          </div>
           <div className="rv rv-d1">
             <ContactForm />
           </div>
@@ -417,7 +444,7 @@ export default function Landing() {
             {BRAND.replace("Twin", "")}
             <em>Twin</em>
           </span>
-          <p>Every answer, with receipts.</p>
+          <p>Every answer, with receipts</p>
         </div>
       </footer>
     </div>
