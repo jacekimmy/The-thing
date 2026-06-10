@@ -30,6 +30,7 @@ export interface CreatorMeta {
  */
 export interface CreatorConfig {
   slug: string;
+  code: string;              // 3-digit URL suffix so links aren't guessable
   name: string;
   handle: string;
   niche: string;

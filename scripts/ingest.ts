@@ -426,6 +426,7 @@ function registerCreator(creator: CreatorMeta) {
   }
   registry[SLUG] = {
     slug: SLUG,
+    code: String(Math.floor(100 + Math.random() * 900)), // unguessable URL suffix
     name: creator.name,
     handle: creator.handle,
     niche: creator.niche,

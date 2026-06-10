@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
-import { DEFAULT_SLUG } from "@/lib/creators";
+import { notFound } from "next/navigation";
 
-// The demo is sent as a per-creator link (e.g. /parker). Root → default creator.
+// Each demo is shared via its own coded link (e.g. /parker-602). The root
+// reveals nothing — no creator list, no default redirect to leak a code.
 export default function Home() {
-  redirect(`/${DEFAULT_SLUG}`);
+  notFound();
 }

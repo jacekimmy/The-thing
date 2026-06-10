@@ -18,7 +18,8 @@
       "What camera settings and lighting should I use?",
       "How do I edit in Premiere to tell a better story?",
       "What gear should a beginner actually buy?"
-    ]
+    ],
+    "code": "602"
   },
   "patrick": {
     "slug": "patrick",
@@ -39,6 +40,7 @@
       "What are the best practices for spacing and centering text in multi-line text boxes?",
       "Can audio effects and modifiers in Resolve be synced to react to specific frequencies like a kick drum?",
       "How do I save and organize custom presets into power bins for quick access during editing?"
-    ]
+    ],
+    "code": "979"
   }
 }

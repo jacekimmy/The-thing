@@ -11,8 +11,15 @@ import Composer from "@/components/chat/Composer";
 // Edit this to your studio name when you send the demo.
 const BRAND = "Twin Studio";
 
-export default function Chat({ creator }: { creator: CreatorConfig }) {
-  const { messages, isStreaming, send } = useChat(creator.slug);
+export default function Chat({
+  creator,
+  urlKey,
+}: {
+  creator: CreatorConfig;
+  urlKey: string;
+}) {
+  // Send the coded URL key to the API so it validates the code too.
+  const { messages, isStreaming, send } = useChat(urlKey);
   const scrollRef = useRef<HTMLDivElement>(null);
   const firstName = creator.name.split(" ")[0];
 

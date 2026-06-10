@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { embedQuery } from "@/lib/embeddings";
 import { loadKnowledge, retrieve, toCitations } from "@/lib/retrieval";
 import { buildSystemPrompt, CHAT_MODEL } from "@/lib/prompt";
-import { getCreator, DEFAULT_SLUG } from "@/lib/creators";
+import { resolveUrlKey } from "@/lib/creators";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,14 +55,14 @@ export async function POST(req: Request) {
     return Response.json({ error: "ANTHROPIC_API_KEY not set" }, { status: 500 });
   }
 
-  // The slug picks exactly one creator's box. Unknown slug → 404, no fallback
-  // pile to leak across.
-  const slug = typeof body?.slug === "string" ? body.slug : DEFAULT_SLUG;
-  const creator = getCreator(slug);
+  // The coded URL key picks exactly one creator's box and validates the code.
+  // Unknown slug or wrong code → 404, no fallback pile to leak across.
+  const urlKey = typeof body?.slug === "string" ? body.slug : "";
+  const creator = resolveUrlKey(urlKey);
   if (!creator) {
-    return Response.json({ error: `Unknown creator: ${slug}` }, { status: 404 });
+    return Response.json({ error: "Unknown creator" }, { status: 404 });
   }
-  const knowledge = loadKnowledge(slug);
+  const knowledge = loadKnowledge(creator.slug);
 
   const allMessages: ChatMessage[] = Array.isArray(body?.messages)
     ? body.messages.filter(
