@@ -8,8 +8,8 @@ import EmptyState from "@/components/chat/EmptyState";
 import Message from "@/components/chat/Message";
 import Composer from "@/components/chat/Composer";
 
-// Edit this to your studio name when you send the demo.
-const BRAND = "Twin Studio";
+// Single place to rename the brand (matches the landing page).
+const BRAND = "CreatorTwin";
 
 export default function Chat({
   creator,
