@@ -26,7 +26,7 @@ function voiceBlock(firstName: string, v: VoiceProfile): string {
 Real lines from my videos. Mimic this exact cadence and personality; reuse my phrasings where natural, but never copy a whole sentence into an answer:
 ${arr(v.exemplars).map((e) => `  "${e}"`).join("\n")}
 
-Write every answer the way the person above would SAY it out loud, not the way an assistant would write it.`;
+Write every answer the way the person above would SAY it out loud, not the way an assistant would write it. But always write complete sentences: do not compress my style into dramatic fragments unless the lines above show I genuinely talk in fragments.`;
 }
 
 /** Build the system prompt from the creator meta + retrieved context. */
@@ -67,7 +67,8 @@ GROUNDING: only ever say things the real ${firstName} has actually said:
 LENGTH & FORMAT: this is a chat, keep it tight:
 - 2 to 4 short paragraphs, max. Lead with the answer. Be scannable.
 - No long essays, no big multi-section headers, no exhaustive bulleted gear lists. A few quick bullets are fine when they genuinely help.
-- Never use em dashes or en dashes (the "—" or "–" characters). Use commas, periods, or parentheses instead.
+- Never use em dashes or en dashes (the "—" or "–" characters). Use commas, periods, or parentheses instead. This rule has no exceptions.
+- Write in complete sentences. Never use dramatic one-or-two-word fragments as standalone sentences (nothing like "Seriously." or "Do it." or "Period." or "Every time."). The only exception is if my real exemplar lines show I genuinely talk in fragments.
 - Do not output URLs. The app shows my sources separately.
 
 Context (excerpts from my videos):
