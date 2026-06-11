@@ -36,9 +36,12 @@ const OVERRIDES = {
     tone: ["friendly", "practical", "beginner-welcoming"],
     intro:
       "I'm Chris's AI twin, trained on his Brooker Films tutorials. Ask me about Premiere, After Effects, and filmmaking.",
+    // NOTE: the originals ("3D text in After Effects?", "remove a green
+    // screen?") need Chris's AE videos, which the partial ingest doesn't have
+    // yet. Restore them once the catalog tops up past his Premiere course.
     suggestedQuestions: [
-      "How do I make text 3D in After Effects?",
-      "How do I remove a green screen cleanly?",
+      "How do I do smooth speed ramps in Premiere Pro?",
+      "How do I color grade my footage to look cinematic?",
       "How do I export with the right settings?",
     ],
   },
