@@ -56,8 +56,18 @@ function DemoWindow() {
   const [qText, setQText] = useState("");
   const [aText, setAText] = useState("");
   const [phase, setPhase] = useState<"typing" | "thinking" | "streaming" | "done">("typing");
+  // On touch devices the demo sits below the fold, so autoplaying means the
+  // visitor only ever sees a finished conversation. Gate it behind a button
+  // there; on desktop (demo visible immediately) it autoplays.
+  const [started, setStarted] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const touch = window.matchMedia("(hover: none), (max-width: 760px)").matches;
+    setStarted(!touch);
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
       setIdx(0);
@@ -100,7 +110,7 @@ function DemoWindow() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [started]);
 
   const ex = SCRIPT[idx];
 
@@ -119,6 +129,16 @@ function DemoWindow() {
           on
         </span>
       </div>
+      {started === false ? (
+        <div className="demo-body demo-gate">
+          <button type="button" className="btn btn-primary" onClick={() => setStarted(true)}>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+              <path d="M7 4.5v15l13-7.5z" />
+            </svg>
+            See it in action
+          </button>
+        </div>
+      ) : (
       <div className="demo-body">
         {qText && <div className="demo-q">{qText}{phase === "typing" && <span className="caret caret-light" />}</div>}
         {phase === "thinking" && (
@@ -146,6 +166,7 @@ function DemoWindow() {
           </span>
         )}
       </div>
+      )}
     </div>
   );
 }
