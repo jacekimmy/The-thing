@@ -101,8 +101,8 @@
     "subhead": "Trained on 10 videos from Chris (Brooker Films). Ask anything.",
     "intro": "I'm Chris's AI twin, trained on his Brooker Films tutorials. Ask me about Premiere, After Effects, and filmmaking.",
     "suggestedQuestions": [
+      "How do I make text 3D in After Effects?",
       "How do I do smooth speed ramps in Premiere Pro?",
-      "How do I color grade my footage to look cinematic?",
       "How do I export with the right settings?"
     ]
   }
