@@ -63,5 +63,26 @@
       "How do I make my audio louder without clipping?",
       "How do I clean up background noise?"
     ]
+  },
+  "rafael": {
+    "slug": "rafael",
+    "code": "599",
+    "name": "Rafael Ludwig",
+    "handle": "@RafaelLudwig",
+    "niche": "Final Cut Pro, DaVinci Resolve, and camera gear",
+    "tone": [
+      "honest",
+      "no-fluff",
+      "explains the why"
+    ],
+    "avatarUrl": "https://yt3.googleusercontent.com/EqdkQupz9o3Kw83qyWKEhNimcX2ae_LOjaNFuWE75VGsissP6CyCVa6MI-gCmtuZU89XzJD5IQ=s400-c",
+    "videoCount": 14,
+    "subhead": "Trained on 14 videos from Rafael Ludwig. Ask anything.",
+    "intro": "I'm Rafael's AI twin, trained on his videos. Ask me about Final Cut Pro, DaVinci Resolve, and camera gear.",
+    "suggestedQuestions": [
+      "What camera should I buy for YouTube?",
+      "How do I edit faster in Final Cut Pro?",
+      "Should I fix it in camera or fix it in post?"
+    ]
   }
 }
