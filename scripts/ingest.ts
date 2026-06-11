@@ -400,6 +400,14 @@ async function embedAndWrite(
     embedding: vectors[i],
   }));
 
+  // Carry a previously built voice profile across re-ingests (npm run voice
+  // writes it to the cache so it survives knowledge-file rebuilds).
+  const voicePath = path.join(CACHE, "voice.json");
+  if (fs.existsSync(voicePath)) {
+    creator.voiceProfile = JSON.parse(fs.readFileSync(voicePath, "utf8"));
+    log(`   carried voice profile from cache`);
+  }
+
   const knowledge: Knowledge = {
     creator,
     chunks: finalChunks,

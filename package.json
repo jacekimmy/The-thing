@@ -8,7 +8,8 @@
     "start": "next start",
     "ingest": "tsx scripts/ingest.ts",
     "ask": "tsx scripts/ask.ts",
-    "questions": "tsx scripts/suggested_from_comments.ts"
+    "questions": "tsx scripts/suggested_from_comments.ts",
+    "voice": "tsx scripts/build_voice_profile.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
