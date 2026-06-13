@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BRAND, BRAND_ACCENT } from "@/lib/brand";
 import "./landing.css";
-
-// Single source of truth for the brand. Rename here when the real name lands.
-export const BRAND = "CreatorTwin";
 
 // Formspree form id: submissions land in the owner's inbox.
 const FORMSPREE_ID = "mrevaebz";
+
+// Split the wordmark into an ink head and an accent tail for the two-tone logo.
+const wordmarkParts = BRAND.endsWith(BRAND_ACCENT)
+  ? [BRAND.slice(0, BRAND.length - BRAND_ACCENT.length), BRAND_ACCENT]
+  : [BRAND, ""];
 
 interface Exchange {
   q: string;
@@ -278,8 +281,8 @@ export default function Landing() {
       <nav className="l-nav">
         <div className="l-wrap l-nav-inner">
           <a className="wordmark" href="#top">
-            {BRAND.replace("Twin", "")}
-            <em>Twin</em>
+            {wordmarkParts[0]}
+            {wordmarkParts[1] && <em>{wordmarkParts[1]}</em>}
             <span className="ai-pill">AI</span>
           </a>
           <a className="btn btn-ghost btn-sm" href="#contact">
@@ -462,8 +465,8 @@ export default function Landing() {
       <footer className="l-footer">
         <div className="l-wrap">
           <span className="wordmark wordmark-sm">
-            {BRAND.replace("Twin", "")}
-            <em>Twin</em>
+            {wordmarkParts[0]}
+            {wordmarkParts[1] && <em>{wordmarkParts[1]}</em>}
           </span>
           <p>Every answer, with receipts</p>
         </div>

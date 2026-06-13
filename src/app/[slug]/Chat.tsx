@@ -3,13 +3,11 @@
 import { useEffect, useRef } from "react";
 import type { CreatorConfig } from "@/lib/types";
 import { useChat } from "@/lib/useChat";
+import { BRAND } from "@/lib/brand";
 import Header from "@/components/chat/Header";
 import EmptyState from "@/components/chat/EmptyState";
 import Message from "@/components/chat/Message";
 import Composer from "@/components/chat/Composer";
-
-// Single place to rename the brand (matches the landing page).
-const BRAND = "CreatorTwin";
 
 export default function Chat({
   creator,

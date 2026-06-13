@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Landing, { BRAND } from "@/components/landing/Landing";
+import { BRAND } from "@/lib/brand";
+import Landing from "@/components/landing/Landing";
 
 export const metadata: Metadata = {
   title: `${BRAND} · Your content, answering in your voice`,
